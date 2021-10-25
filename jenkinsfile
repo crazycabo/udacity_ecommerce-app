@@ -34,7 +34,7 @@ pipeline {
             publishHTML (
                 target: [
                     allowMissing: true,
-                    reportFiles: '/pit-reports/index.html',
+                    reportFiles: 'target/pit-reports/**/index.html',
                     reportName: "Pitest Mutation Coverage"
                 ]
             )
