@@ -6,9 +6,21 @@ pipeline {
                 sh 'mvn clean compile'
             }
         }
-        stage('Test') {
+        stage('Unit Tests') {
             steps {
-                sh 'mvn verify'
+                sh 'mvn test'
+            }
+        }
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://localhost:8888')],
+                       contextPath: 'myApp',
+                       war: '**/*.war'
             }
         }
     }
