@@ -11,6 +11,18 @@ pipeline {
                 sh 'mvn test'
             }
         }
+        state('PiTest Coverage Report') {
+            steps {
+                sh 'mvn org.pitest:pitest-maven:scmMutationCoverage -DmutationThreshold=60'
+                publishHTML (target:
+                    [
+                        allowMissing: true,
+                        reportFiles: '/pit-reports/index.html',
+                        reportName: "Pitest Mutation Coverage"
+                    ]
+                )
+            }
+        }
         stage('Package') {
             steps {
                 sh 'mvn package'

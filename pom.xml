@@ -65,6 +65,29 @@
 		</dependency>
 	</dependencies>
 
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.pitest</groupId>
+				<artifactId>pitest-maven</artifactId>
+				<version>1.7.2</version>
+				<configuration>
+					<skip>false</skip>
+					<sourceDataFormats>
+						<sourceDataFormat>HTML</sourceDataFormat>
+					</sourceDataFormats>
+				</configuration>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>report</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -74,6 +97,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.pitest</groupId>
+				<artifactId>pitest-maven</artifactId>
+				<version>1.7.2</version>
 			</plugin>
 		</plugins>
 	</build>
