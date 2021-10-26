@@ -63,6 +63,24 @@
 			<version>1.18.22</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>5.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>4.0.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<reporting>
@@ -76,6 +94,10 @@
 					<sourceDataFormats>
 						<sourceDataFormat>HTML</sourceDataFormat>
 					</sourceDataFormats>
+					<outputFormats>
+						<outputFormat>XML</outputFormat>
+						<outputFormat>HTML</outputFormat>
+					</outputFormats>
 				</configuration>
 				<reportSets>
 					<reportSet>
