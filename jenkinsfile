@@ -19,8 +19,10 @@ pipeline {
             publishHTML (
                 target: [
                     allowMissing: false,
-                    reportDir: 'target/pit-reports/',
-                    reportFiles: 'index.html',
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: "target/pit-reports",
+                    reportFiles: "index.html",
                     reportName: "Pitest Mutation Coverage"
                 ]
             )
