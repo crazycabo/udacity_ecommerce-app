@@ -1,19 +1,9 @@
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('Build Project') {
             steps {
-                sh 'mvn clean compile'
-            }
-        }
-        stage('Unit Tests') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-        stage('Package') {
-            steps {
-                sh 'mvn package'
+                sh 'mvn clean install org.pitest:pitest-maven:mutationCoverage -DcoverageThreshold=60 -Dstyle.color=never'
             }
         }
         stage('Deploy') {
@@ -22,6 +12,20 @@ pipeline {
                        contextPath: 'myApp',
                        war: '**/*.war'
             }
+        }
+    }
+    post {
+        always {
+            publishHTML (
+                target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: "target/pit-reports",
+                    reportFiles: "index.html",
+                    reportName: "Pitest Mutation Coverage"
+                ]
+            )
         }
     }
 }
