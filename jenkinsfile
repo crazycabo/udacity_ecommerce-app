@@ -1,14 +1,9 @@
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('Build & Test') {
             steps {
-                sh 'mvn clean compile -Dstyle.color=never'
-            }
-        }
-        stage('Unit Tests') {
-            steps {
-                sh 'mvn test -Dstyle.color=never'
+                sh 'mvn clean test -Dstyle.color=never'
                 sh 'mvn org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=60 -Dstyle.color=never'
             }
         }
