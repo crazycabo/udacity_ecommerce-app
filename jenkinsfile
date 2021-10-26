@@ -18,8 +18,8 @@ pipeline {
         always {
             publishHTML (
                 target: [
-                    allowMissing: true,
-                    reportDir: 'target/pit-reports',
+                    allowMissing: false,
+                    reportDir: 'target/pit-reports/',
                     reportFiles: 'index.html',
                     reportName: "Pitest Mutation Coverage"
                 ]
