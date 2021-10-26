@@ -31,13 +31,14 @@ pipeline {
     }
     post {
         always {
-            publishHTML (
-                target: [
-                    allowMissing: true,
-                    reportFiles: '/target/pit-reports/**/index.html',
-                    reportName: "Pitest Mutation Coverage"
-                ]
-            )
+//             publishHTML (
+//                 target: [
+//                     allowMissing: true,
+//                     reportFiles: '/target/pit-reports/**/index.html',
+//                     reportName: "Pitest Mutation Coverage"
+//                 ]
+//             )
+            pitmutation killRatioMustImprove: false, minimumKillRatio: 60.0, mutationStatsFile: '**/target/pit-reports/**/mutations.xml'
         }
     }
 }
