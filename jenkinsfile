@@ -3,22 +3,22 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'mvn clean compile'
+                sh 'mvn clean compile -Dstyle.color=never'
             }
         }
         stage('Unit Tests') {
             steps {
-                sh 'mvn test'
+                sh 'mvn test -Dstyle.color=never'
             }
         }
         stage('PiTest Coverage Report') {
             steps {
-                sh 'mvn org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=60'
+                sh 'mvn org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=60 -Dstyle.color=never'
             }
         }
         stage('Package') {
             steps {
-                sh 'mvn package'
+                sh 'mvn package -Dstyle.color=never'
             }
         }
         stage('Deploy') {
