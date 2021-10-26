@@ -3,8 +3,7 @@ pipeline {
     stages {
         stage('Build Project') {
             steps {
-                sh 'mvn clean package -Dstyle.color=never'
-                sh 'mvn org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=60 -Dstyle.color=never'
+                sh 'mvn clean install org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=60 -Dstyle.color=never'
             }
         }
         stage('Deploy') {
@@ -20,7 +19,7 @@ pipeline {
             publishHTML (
                 target: [
                     allowMissing: true,
-                    reportFiles: '**/target/pit-reports/index.html',
+                    reportFiles: '**/target/pit-reports/',
                     reportName: "Pitest Mutation Coverage"
                 ]
             )
