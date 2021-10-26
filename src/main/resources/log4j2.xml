@@ -7,9 +7,9 @@
             />
         </Console>
         <SplunkHttp
-                name="splunk"
+                name="ecommerce-app"
                 url="https://splunk.ingendevelopment.com:8000"
-                token="XXXXXX-XXXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                token="e5138cdd-be95-4d91-9cb4-90237badb7f1"
                 host="splunk.ingendevelopment.com"
                 index="http_log_event_collector_idx"
                 type="raw"
