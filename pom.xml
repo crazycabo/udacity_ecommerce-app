@@ -71,6 +71,10 @@
 				<groupId>org.pitest</groupId>
 				<artifactId>pitest-maven</artifactId>
 				<version>1.7.2</version>
+				<configuration>
+					<threads>1</threads>
+					<timestampedReports>false</timestampedReports>
+				</configuration>
 				<executions>
 					<execution>
 						<id>pitest</id>
