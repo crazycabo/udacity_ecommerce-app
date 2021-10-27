@@ -1,13 +1,11 @@
 package com.ingendevelopment.controllers;
 
+import com.ingendevelopment.logging.SplunkLogger;
 import com.ingendevelopment.model.persistence.Cart;
 import com.ingendevelopment.model.persistence.User;
 import com.ingendevelopment.model.persistence.repositories.CartRepository;
 import com.ingendevelopment.model.persistence.repositories.UserRepository;
 import com.ingendevelopment.model.requests.CreateUserRequest;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/user")
-@Slf4j
 public class UserController {
 	
 	@Autowired
@@ -32,7 +29,8 @@ public class UserController {
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	final Logger logger = LoggerFactory.getLogger(UserController.class);
+	@Autowired
+	private SplunkLogger logger;
 
 	@GetMapping("/id/{id}")
 	public ResponseEntity<User> findById(@PathVariable Long id) {
@@ -55,16 +53,24 @@ public class UserController {
 		user.setCart(cart);
 
 		if (createUserRequest.getPassword().length() < 8) {
-			logger.error("Password for user ID '" + user.getId() + "' does not meet minimum length requirement.");
+			logger.logMessage("Password for user ID '" + user.getId() + "' does not meet minimum length requirement.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.badRequest().build();
 		} else if (!createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())) {
-			logger.error("Password input and confirm input do not match.");
+			logger.logMessage("Password input and confirm input do not match.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.badRequest().build();
 		} else {
 			user.setPassword(bCryptPasswordEncoder.encode(createUserRequest.getPassword()));
 			userRepository.save(user);
 
-			logger.info("User ID '" + user.getId() + "' created successfully.");
+			logger.logMessage("User ID '" + user.getId() + "' created successfully.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.INFO);
 		}
 
 		return ResponseEntity.ok(user);

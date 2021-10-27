@@ -1,10 +1,8 @@
 package com.ingendevelopment.controllers;
 
+import com.ingendevelopment.logging.SplunkLogger;
 import com.ingendevelopment.model.persistence.Item;
 import com.ingendevelopment.model.persistence.repositories.ItemRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,13 +14,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/item")
-@Slf4j
 public class ItemController {
 
 	@Autowired
 	private ItemRepository itemRepository;
 
-	final Logger logger = LoggerFactory.getLogger(ItemController.class);
+	@Autowired
+	private SplunkLogger logger;
 	
 	@GetMapping
 	public ResponseEntity<List<Item>> getItems() {
@@ -39,10 +37,16 @@ public class ItemController {
 		List<Item> items = itemRepository.findByName(name);
 
 		if (items == null || items.isEmpty()) {
-			logger.error("Failed to find items with the name '" + name + "'.");
+			logger.logMessage("Failed to find items with the name '" + name + "'.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.notFound().build();
 		} else {
-			logger.info("Found at least one items with the name '" + name + "'.");
+			logger.logMessage("Found at least one items with the name '" + name + "'.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.INFO);
+
 			return ResponseEntity.ok(items);
 		}
 	}

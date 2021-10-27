@@ -1,12 +1,10 @@
 package com.ingendevelopment.controllers;
 
+import com.ingendevelopment.logging.SplunkLogger;
 import com.ingendevelopment.model.persistence.User;
 import com.ingendevelopment.model.persistence.UserOrder;
 import com.ingendevelopment.model.persistence.repositories.OrderRepository;
 import com.ingendevelopment.model.persistence.repositories.UserRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/order")
-@Slf4j
 public class OrderController {
 	
 	@Autowired
@@ -28,21 +25,27 @@ public class OrderController {
 	@Autowired
 	private OrderRepository orderRepository;
 
-	final Logger logger = LoggerFactory.getLogger(OrderController.class);
+	@Autowired
+	private SplunkLogger logger;
 	
 	@PostMapping("/submit/{username}")
 	public ResponseEntity<UserOrder> submit(@PathVariable String username) {
 		User user = userRepository.findByUsername(username);
 
 		if(user == null) {
-			logger.error("User with username '" + username + "' not found.");
+			logger.logMessage("User with username '" + username + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.notFound().build();
 		}
 
 		UserOrder order = UserOrder.createFromCart(user.getCart());
 		orderRepository.save(order);
 
-		logger.info("Order ID '" + order.getId() + "' submitted successfully");
+		logger.logMessage("Order ID '" + order.getId() + "' submitted successfully",
+				this.getClass().getName(),
+				SplunkLogger.Severity.INFO);
 
 		return ResponseEntity.ok(order);
 	}
@@ -52,7 +55,10 @@ public class OrderController {
 		User user = userRepository.findByUsername(username);
 
 		if(user == null) {
-			logger.error("User with username '" + username + "' not found.");
+			logger.logMessage("User with username '" + username + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.notFound().build();
 		}
 

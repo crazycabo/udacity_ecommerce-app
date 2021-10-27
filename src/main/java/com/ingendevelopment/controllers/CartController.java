@@ -1,5 +1,6 @@
 package com.ingendevelopment.controllers;
 
+import com.ingendevelopment.logging.SplunkLogger;
 import com.ingendevelopment.model.persistence.Cart;
 import com.ingendevelopment.model.persistence.Item;
 import com.ingendevelopment.model.persistence.User;
@@ -7,9 +8,6 @@ import com.ingendevelopment.model.persistence.repositories.CartRepository;
 import com.ingendevelopment.model.persistence.repositories.ItemRepository;
 import com.ingendevelopment.model.persistence.repositories.UserRepository;
 import com.ingendevelopment.model.requests.ModifyCartRequest;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +21,6 @@ import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/api/cart")
-@Slf4j
 public class CartController {
 	
 	@Autowired
@@ -35,21 +32,28 @@ public class CartController {
 	@Autowired
 	private ItemRepository itemRepository;
 
-	final Logger logger = LoggerFactory.getLogger(CartController.class);
+	@Autowired
+	private SplunkLogger logger;
 	
 	@PostMapping("/addToCart")
 	public ResponseEntity<Cart> addTocart(@RequestBody ModifyCartRequest request) {
 		User user = userRepository.findByUsername(request.getUsername());
 
 		if(user == null) {
-			logger.info("User with username '" + request.getUsername() + "' not found.");
+			logger.logMessage("User with username '" + request.getUsername() + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 		Optional<Item> item = itemRepository.findById(request.getItemId());
 
 		if(!item.isPresent()) {
-			logger.info("Item with ID '" + request.getItemId() + "' not found.");
+			logger.logMessage("Item with ID '" + request.getItemId() + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
@@ -67,14 +71,20 @@ public class CartController {
 		User user = userRepository.findByUsername(request.getUsername());
 
 		if(user == null) {
-			logger.error("User with username '" + request.getUsername() + "' not found.");
+			logger.logMessage("User with username '" + request.getUsername() + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 		Optional<Item> item = itemRepository.findById(request.getItemId());
 
 		if(!item.isPresent()) {
-			logger.error("Item with ID '" + request.getItemId() + "' not found.");
+			logger.logMessage("Item with ID '" + request.getItemId() + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+			
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
