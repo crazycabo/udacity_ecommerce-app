@@ -1,5 +1,6 @@
 package com.ingendevelopment.controllers;
 
+import com.ingendevelopment.logging.SplunkLogger;
 import com.ingendevelopment.model.persistence.Item;
 import com.ingendevelopment.model.persistence.repositories.ItemRepository;
 import org.junit.Test;
@@ -30,6 +31,9 @@ public class ItemControllerTests {
 
     @InjectMocks
     private ItemController itemController;
+
+    @Mock
+    private SplunkLogger logger;
 
     Item itemA = Item.builder()
             .id(1L)

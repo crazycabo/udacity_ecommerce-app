@@ -1,5 +1,6 @@
 package com.ingendevelopment.controllers;
 
+import com.ingendevelopment.logging.SplunkLogger;
 import com.ingendevelopment.model.persistence.Cart;
 import com.ingendevelopment.model.persistence.Item;
 import com.ingendevelopment.model.persistence.User;
@@ -30,39 +31,69 @@ public class CartController {
 	
 	@Autowired
 	private ItemRepository itemRepository;
+
+	@Autowired
+	private SplunkLogger logger;
 	
 	@PostMapping("/addToCart")
 	public ResponseEntity<Cart> addTocart(@RequestBody ModifyCartRequest request) {
 		User user = userRepository.findByUsername(request.getUsername());
+
 		if(user == null) {
+			logger.logMessage("User with username '" + request.getUsername() + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
+
 		Optional<Item> item = itemRepository.findById(request.getItemId());
+
 		if(!item.isPresent()) {
+			logger.logMessage("Item with ID '" + request.getItemId() + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
+
 		Cart cart = user.getCart();
 		IntStream.range(0, request.getQuantity())
 			.forEach(i -> cart.addItem(item.get()));
+
 		cartRepository.save(cart);
+
 		return ResponseEntity.ok(cart);
 	}
 	
 	@PostMapping("/removeFromCart")
 	public ResponseEntity<Cart> removeFromcart(@RequestBody ModifyCartRequest request) {
 		User user = userRepository.findByUsername(request.getUsername());
+
 		if(user == null) {
+			logger.logMessage("User with username '" + request.getUsername() + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
+
 		Optional<Item> item = itemRepository.findById(request.getItemId());
+
 		if(!item.isPresent()) {
+			logger.logMessage("Item with ID '" + request.getItemId() + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+			
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
+
 		Cart cart = user.getCart();
 		IntStream.range(0, request.getQuantity())
 			.forEach(i -> cart.removeItem(item.get()));
+
 		cartRepository.save(cart);
+
 		return ResponseEntity.ok(cart);
 	}
-		
 }

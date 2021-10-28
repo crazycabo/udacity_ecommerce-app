@@ -1,5 +1,6 @@
 package com.ingendevelopment.controllers;
 
+import com.ingendevelopment.logging.SplunkLogger;
 import com.ingendevelopment.model.persistence.Cart;
 import com.ingendevelopment.model.persistence.User;
 import com.ingendevelopment.model.persistence.repositories.CartRepository;
@@ -33,6 +34,9 @@ public class UserControllerTests {
 
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Mock
+    private SplunkLogger logger;
 
     @InjectMocks
     private UserController userController;

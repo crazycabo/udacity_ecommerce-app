@@ -1,5 +1,6 @@
 package com.ingendevelopment.controllers;
 
+import com.ingendevelopment.logging.SplunkLogger;
 import com.ingendevelopment.model.persistence.Cart;
 import com.ingendevelopment.model.persistence.Item;
 import com.ingendevelopment.model.persistence.User;
@@ -41,6 +42,9 @@ public class CartControllerTests {
 
     @InjectMocks
     private CartController cartController;
+
+    @Mock
+    private SplunkLogger logger;
 
     User user = User.builder()
             .id(1L)

@@ -1,5 +1,6 @@
 package com.ingendevelopment.controllers;
 
+import com.ingendevelopment.logging.SplunkLogger;
 import com.ingendevelopment.model.persistence.Cart;
 import com.ingendevelopment.model.persistence.User;
 import com.ingendevelopment.model.persistence.repositories.CartRepository;
@@ -28,6 +29,9 @@ public class UserController {
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+	@Autowired
+	private SplunkLogger logger;
+
 	@GetMapping("/id/{id}")
 	public ResponseEntity<User> findById(@PathVariable Long id) {
 		return ResponseEntity.of(userRepository.findById(id));
@@ -36,7 +40,20 @@ public class UserController {
 	@GetMapping("/{username}")
 	public ResponseEntity<User> findByUserName(@PathVariable String username) {
 		User user = userRepository.findByUsername(username);
-		return user == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(user);
+
+		if (user == null) {
+			logger.logMessage("Username '" + username + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
+			return ResponseEntity.notFound().build();
+		} else {
+			logger.logMessage("Username '" + user.getUsername() + "' with ID '" + user.getId() + "' found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.INFO);
+
+			return ResponseEntity.ok(user);
+		}
 	}
 	
 	@PostMapping("/create")
@@ -49,12 +66,32 @@ public class UserController {
 		user.setCart(cart);
 
 		if (createUserRequest.getPassword().length() < 8) {
+			logger.logMessage("Password for user ID '" + user.getId() + "' does not meet minimum length requirement.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.badRequest().build();
 		} else if (!createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())) {
+			logger.logMessage("Password input and confirm input do not match.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
 			return ResponseEntity.badRequest().build();
 		} else {
+			if (userRepository.findByUsername(user.getUsername()) != null) {
+				logger.logMessage("Username '" + user.getUsername() + "' already exists. Please choose another.",
+						this.getClass().getName(),
+						SplunkLogger.Severity.ERROR);
+
+				return ResponseEntity.status(409).build();
+			}
+
 			user.setPassword(bCryptPasswordEncoder.encode(createUserRequest.getPassword()));
 			userRepository.save(user);
+
+			logger.logMessage("User ID '" + user.getId() + "' created successfully.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.INFO);
 		}
 
 		return ResponseEntity.ok(user);
