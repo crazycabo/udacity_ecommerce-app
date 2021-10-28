@@ -3,12 +3,11 @@ package com.ingendevelopment.logging;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
-import lombok.Builder;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,18 +19,30 @@ import java.util.Map;
 @Slf4j
 public class SplunkLogger {
 
+    private final Map<String, String> headers = new HashMap<>();
+    private final Map<String, String> eventParameters = new HashMap<>();
+
     public enum Severity {
         ERROR, WARNING, INFO
     }
 
     public void logMessage(String message, String invokedSource, Severity severity) {
+        sendEvent(message, invokedSource, severity);
+    }
+
+    public void logException(Throwable exception, String invokedSource) {
+        eventParameters.put("message", exception.getLocalizedMessage());
+        eventParameters.put("stacktrace", Arrays.toString(exception.getStackTrace()));
+
+        sendEvent("Uncaught Exception", invokedSource, Severity.ERROR);
+    }
+
+    public void sendEvent(String message, String invokedSource, Severity severity) {
         Unirest.config().verifySsl(false);
 
-        Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", MediaType.APPLICATION_JSON.toString());
         headers.put("Authorization", "Splunk 79df2c26-c7f4-4421-8b75-4a858b49361d");
 
-        Map<String, String> eventParameters = new HashMap<>();
         eventParameters.put("event", message);
         eventParameters.put("severity", severity.name());
 
@@ -49,13 +60,4 @@ public class SplunkLogger {
 
         log.info(String.valueOf(response.getBody()));
     }
-}
-
-@Data
-@Builder
-class SplunkEvent {
-    private String host;
-    private String index;
-    private String source;
-    private Map<String, String> event;
 }

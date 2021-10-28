@@ -40,7 +40,20 @@ public class UserController {
 	@GetMapping("/{username}")
 	public ResponseEntity<User> findByUserName(@PathVariable String username) {
 		User user = userRepository.findByUsername(username);
-		return user == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(user);
+
+		if (user == null) {
+			logger.logMessage("Username '" + username + "' not found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.ERROR);
+
+			return ResponseEntity.notFound().build();
+		} else {
+			logger.logMessage("Username '" + user.getUsername() + "' with ID '" + user.getId() + "' found.",
+					this.getClass().getName(),
+					SplunkLogger.Severity.INFO);
+
+			return ResponseEntity.ok(user);
+		}
 	}
 	
 	@PostMapping("/create")
@@ -65,6 +78,14 @@ public class UserController {
 
 			return ResponseEntity.badRequest().build();
 		} else {
+			if (userRepository.findByUsername(user.getUsername()) != null) {
+				logger.logMessage("Username '" + user.getUsername() + "' already exists. Please choose another.",
+						this.getClass().getName(),
+						SplunkLogger.Severity.ERROR);
+
+				return ResponseEntity.status(409).build();
+			}
+
 			user.setPassword(bCryptPasswordEncoder.encode(createUserRequest.getPassword()));
 			userRepository.save(user);
 
